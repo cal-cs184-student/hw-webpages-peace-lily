@@ -32,16 +32,11 @@
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to webpage: (TODO) <a href="https://github.com/cal-cs184-student/sp25-hw1-triangles-1">github.com/cal-cs184-student/sp25-hw1-triangles-1</a>
 		
 		<br>
 
 		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-
-		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
 
 		<!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
@@ -51,62 +46,225 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			<p>
+				My triangle rasterization algorithm begins by computing the bounding box of a triangle. The bounding box is the smallest
+				axis-aligned rectangle that completely encloses the triangle and is obtained by taking the minimum and maximum x and y
+				coordinates among the triangle's vertices. By restricting the pixel tests to only those within this rectangle, the algorithm
+				avoids unnecessary computations.
+			</p>
+			<p>
+				For each pixel within the bounding box, I sample the pixel center (e.g., at (x + 0.5, y + 0.5)) and evaluate three edge
+				equations, one for each triangle edge. Each edge equation, derived from the line through two vertices, indicates which side
+				of the edge a point lies on. I then combine these tests using a counterclockwise check to determine if the sample
+				lies within the triangle, regardless of the vertex order. Admittedly, there was a bug in my code, which led to issues with Task 4, 
+				as mentioned later. 
+			</p>
+			<p>
+				The method used in this task is efficient because it only examines pixels in the minimal region necessary to cover the triangle, and its performance
+				is comparable to checking every sample within the bounding box. By limiting our evaluation to this constrained area, we significantly reduce the number
+				of unnecessary pixel tests, which improves overall rendering speed. Furthermore, the use of edge function evaluations--each operating in constant time--ensures 
+				that our approach scales gracefully even as triangle complexity increases, making it well-suited for real-time applications. 
+			</p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+			<figure style="text-align: center;">
+				<img src="images/test4.png" alt="Test4.svg with pixel inspector" style="width:500px;"/>
+				<figcaption>test4.svg, with the pixel inspector centered on the bottom left corner of the green triangle.</figcaption>
+			</figure>
+
+			<h2>Task 2: Antialiasing by Supersampling</h2>
+			<p>
+				To reduce aliasing and improve image quality, I extended the rasterization pipeline to use supersampling. Supersampling divides each
+				pixel into a grid of subpixels--such as a 2x2 grid for a sample rate of 4 or a 4x4 grid for a sample rate of 16--so that multiple color
+				samples are taken within each pixel.
+			</p>
+			<p>
+				I modified the sample buffer to hold <em>width x height x sample_rate</em> color samples, ensuring each pixel stores all its subpixel
+				colors. In the triangle rasterization routine, instead of testing a single point per pixel, I iterate over the subpixel grid, testing the
+				center of each subpixel using the same edge equations from Task 1. If a subpixel is covered by the triangle, its corresponding sample is set
+				to the triangle's color.
+			</p>
+			<p>
+				After all primitives are rasterized, the <code>resolve_to_framebuffer()</code> function averages the subpixel colors for each pixel to compute
+				the final displayed color. This averaging process smooths out jagged edges, as the pixel's final color reflects a blend of both fully and
+				partially covered subpixels.
+			</p>
+			
+			<figure style="text-align: center;">
+				<div style="display: flex; justify-content: center; gap: 20px;">
+				  <div>
+					<img src="images/test4_1.png" alt="Sample rate 1" style="width:300px;"/>
+				  </div>
+				  <div>
+					<img src="images/test4_4.png" alt="Sample rate 4" style="width:300px;"/>
+				  </div>
+				  <div>
+					<img src="images/test4_16.png" alt="Sample rate 16" style="width:300px;"/>
+				  </div>
+				</div>
+				<figcaption>test4.svg rendered with sample rates 1, 4, and 16, with the pixel inspector over the rightmost corner of the red triangle, showing increased antialiasing quality.</figcaption>
+			  </figure>
+
+			  <h2>Task 3: Transforms</h2>
+			  <p>
+				  For Task 3, I implemented three fundamental 2D transformation functions--translate, scale, and rotate--in homogeneous coordinates,
+				  which are represented as 3x3 matrices. This allows for a unified method of performing affine transformations on 2D points (represented as
+				  (x, y, 1)).
+			  </p>
+
+			  <!-- CHAT GPT USE: I utilized GPT to help format the first matrix, which helped me format the last two on my own. -->
+			  <p>
+				  The <code>translate(dx, dy)</code> function returns a matrix that moves an object by dx in the x-direction and dy in the y-direction:
+				  \[
+				  T = \begin{bmatrix} 1 & 0 & dx \\ 0 & 1 & dy \\ 0 & 0 & 1 \end{bmatrix}
+				  \]
+			  </p>
+			  <p>
+				  The <code>scale(sx, sy)</code> function returns a matrix that scales an object by factors of sx and sy along the x and y axes respectively:
+				  \[
+				  S = \begin{bmatrix} sx & 0 & 0 \\ 0 & sy & 0 \\ 0 & 0 & 1 \end{bmatrix}
+				  \]
+			  </p>
+			  <p>
+				  The <code>rotate(deg)</code> function converts an angle from degrees to radians and returns a matrix that rotates an object counterclockwise
+				  about the origin:
+				  \[
+				  R = \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+				  \]
+				  where \( \theta = \text{deg} \times \pi / 180 \).
+			  </p>
+			  <p>
+				  Using these transformation functions, I updated the original robot.svg. In my updated version, saved as <code>my_robot.svg</code>,
+				  I changed the color scheme to blue and modified both arms so that they appear to be waving. In this version, both arms have been transformed via the
+				  <code>transform</code> attribute, demonstrating hierarchical transformation: each limb is independently rotated and translated while maintaining its
+				  relationship with the body.
+			  </p>
+
+			  <figure style="text-align: center;">
+				<img src="images/my_robot.png" alt="my_robot.svg rendered as a blue cubeman with both arms waving." style="width:400px;"/>
+				<figcaption>my_robot.svg rendered as a blue cubeman with both arms waving.</figcaption>
+			</figure>
+			
+
+		<h2>Task 4: Barycentric Coordinates</h2>
+		<div>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+				<table style="width: 100%; text-align: center; border-collapse: collapse;">
+					<tr>
+						<td style="text-align: center;">
+							<img src="images/interpolated-tri.png" width="400px"/>
+							<figcaption>Figure 1</figcaption>
+						</td>
+						<td style="text-align: center;">
+							<img src="images/task4-circle.png" width="400px"/>
+							<figcaption>Figure 2</figcaption>
+						</td>
+					</tr>
+				</table>
+			</div>
+					<!-- CHAT GPT USE: I utilized GPT to properly format the equations as I was struggling to do so on my own. In the process, I learned about MathJax, -->
+					<p><strong>Overview:</strong> Barycentric coordinates are a three-coordinate system for triangles that describe a given point within the triangle with the points (alpha, beta, gamma). Notably, this system allows us to interpolate values (given by the values at the vertex of a triangle) throughout the triangle to smoothly blend the values.</p>
+
+					<p>For any given point, let \( V \) be the interpolated value inside a triangle with vertices \( A, B, C \). If \( V_A, V_B, \) and \( V_C \) represent the values at each vertex, we can compute \( V \) as:</p>
+					
+					<p style="text-align: center;">
+						\[
+						V = \alpha V_A + \beta V_B + \gamma V_C
+						\]
+					</p>
+					
+					<p style="text-align: center; font-size: 14px;">Equation 1</p>
+				
+					<p>Then V is a value that appropriately weights the value at each vertex. If we do this for every point within the triangle, we can properly interpolate a given value throughout the triangle. In Figure 1, each vertex has a color (pink, yellow, blue). For each point within the triangle, I calculate the alpha, beta, and gamma values and use these values to interpolate the color for that point. By inspection, you will notice that points closer to a vertex more strongly exhibit the color for that vertex. By contrast, points that are at a midpoint between vertices exhibit more blending. A key example of this is the midpoint of the triangle, which weighs the value of each vertex evenly, creating a grey-ish color.</p>
+				
+					<p>Figure 2 is a color wheel made up of several smaller triangles, which interpolate the colors at the vertices to  smoothly blend color throughout the wheel. Initially, I had a bug where a white line appeared on the color wheel. Despite finding an ed thread with a similar problem, I was unable to fix the issue on my own and went to office hours. Through OH, I realized there was a bug in Task 1, where I was not checking whether the line equations were equal to zero in the counter clockwise case, I was only checking equality for clockwise. This led to a thin white line in the color wheel. Once I added equality conditions for both cases, the line disappeared.</p>
+				</div>
+
+		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
+		<p><strong>Overview:</strong> Though barycentric interpolation is useful, it is a linear function. Perspective itself is not linear (note how items closer to you appear larger, but items further away appear smaller). Due to this, when we map textures, we get a better result from sampling nearby pixels to fill in "gaps" in the texture. For this project, we explored two types of pixel sampling methods:</p>
+		
+		<div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 40px;">
+			<p style="flex: 1; margin-right: 20px;"><strong>Nearest Neighbor:</strong> The perhaps more naive method is to find the nearest texel (discrete coordinates in the texture) and sample from that point. Given the (u, v) coordinates of a potentially continuous point, we scale this by the width and height of the mipmap and then round this value to find the nearest discrete coordinates. Given this discrete coordinate, we can sample from the mipmap at those coordinates and use the coordinate at that texel.</p>
+			
+			<p style="flex: 1;"><strong>Bilinear:</strong> This method examines the four nearest texels in our mipmap and interpolates them relative to our given (u, v) coordinate to find an appropriate color. The interpolation process involves two horizontal linear interpolations (one between the top two texels and one between the bottom two texels). The results of these two lerps, x1 and x2 respectively, is a final vertical linear interpolation between x1 and x2. The final result weights colors of the four nearest neighbors relative to our (u, v) coordinates.</p>
+		</div>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/nearest1.png" width="400px"/>
+				  <figcaption>(fig. 1) Nearest Neighbor Sampling, sample rate 1/px</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+					<img src="images/bilinear1.png" width="400px"/>
+					<figcaption>(fig. 2) Bilinear Sampling, sample rate 1/px</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+					<img src="images/nearest16.png" width="400px"/>
+					<figcaption>(fig. 3) Nearest Neighbor Sampling, sample rate 6/px</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/bilinear16.png" width="400px"/>
+				  <figcaption>(fig. 4) Bilinear Sampling, sample rate 16/px</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
-		
-		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+		<p>In general, bilinear sampling performs better in areas of high contrast and detail. Nearest neighbor often results in blocky or jagged images. In the images above, you can see that the shadow of the clock on the campanile is represented differently in figure 1 (nearest neighbor) than figure 2 (bilinear). In the bilinear representation, there is a line of pixels distinguishing the clock hand from the shadow. However, in the nearest neighbor image, the clock hand and shadow begin to blur together at the end and there are some dark grey pixels from the shadow which mix in with the blue pixels from the clock itself.
+		</p>
+		<p>Higher sampling rates are another method to smooth out images. For both nearest neighbor and bilinear, the image smooths out at higher sampling rates, improving the transition between high contrast areas. However, the nearest neighbor image (figure 3) still struggles with a blending of the clock hang, shadow, and lines from the bricks. In figure 4, these areas of contrast appear clearer and the clock hand and shadow remain separated.</p>
+				
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
+		<p><strong>Overview: </strong>Level sampling uses mipmap, which is an array of pre-computed lower resolutions of textures. Each texture decreases in quality by a factor of 2 (ex: if level 0 is 64 x 64, level 1 will be 32 x 32). This becomes useful as we are able to choose which level to sample from depending on the scene we are rendering. If we are rendering an image that has foreground (close to the observer) then we are magnifying our texture which entails a single texel sample to render multiple pixels. A similar challenge is encountered if we are minifying our texture (multiple texels map to a single pixel). In both these cases, the transformation between texture space and screen space are relatively large as we're mapping multiple samples to one sample. In situations like these, it would be useful to use a blurred texture to make our transitions smoother and blend well. When choosing what level to sample, we would want to sample from a higher level because higher levels, due to their lower resolution, blur the texture more. </p>
+		<p>Alternatively, if we have minimal magnification/minification then there is only a small change in texture space, and whatever transformations occur between screen space and texture space is relatively small (especially compared to our earlier case). Then in the case of minimal transformations, it makes more sense to sample from a lower mipmap level, because we want to preserve detail from our texture.</p>
+		<p><strong>Implementation: There were three cases for selecting appropriate levels</strong></p>
+		<ol>
+			<li>If the level sampling method was L_ZERO, we sampled from the 0th level mipmap, which is the original resolution.</li>
+			<li>
+				<p>f the level sampling method was L_NEAREST, then we computed the nearest mipmap level to sample from. To find the nearest mipmap level for a given point (x, y), we look at the nearest neighbors in screen space, which will be (x+1, y) and (x, y+1). When these coordinates are shifted to UV, we are essentially changing the coordinate system, meaning a transformation is taking place. To understand this transformation, we can compute the partial derivatives of the UV coordinates at the given points. We can take the partial derivatives du/dx, dv, dx to understand horizontal change and du/dy, dv/dy to understand vertical change. However, computing the barycentric UV coordinates of (x, y), (x + 1, y) and (x, y + 1) allows us to understand how these points map to the texture space, which aligns with the partial derivatives just discussed. </p>
+				<p>Given the UV coordinates of these points, we can calculate the difference vectors between our original point (x, y) and our nearest points: (x, y + 1) and (x + 1, y). Given these two vectors, we calculate the euclidian norm of each vector, and assign L to be the largest vector. L tells us how much our texture is magnifying or minifying at a given point,  so then the appropriate mipmap level with be log base 2 of L; we utilize log base 2 because mipmaps decrease in resolution by a factor of 2.</p>
 			</li>
+			<li>If the level sampling method is L_LINEAR, then we want to interpolate between two mipmap levels. We can do this by using D (as calculated in part 2) to sample from the level below D (floor) and the level above D (ceil). To properly interpolate the levels, we can linearly interpolate the two levels using D - floor(D), to properly weight the two levels.</li>
+		</ol>
+
+		<p><strong>Tradeoffs:</strong>By this point in the homework, we've worked on three methods for sampling: sampling pixels (bilinear or nearest neighbor), level sampling (selecting which mipmap level to sample from), and the number of samples per pixel. It's possible to combine all of these methods together or just to utilize one of them, however, they all have different trade offs.</p>
+		<ul>
+			<li>Pixel Sampling:</li>
+				<ul>
+					<li><strong>Nearest  Neighbor:</strong> This method is relatively fast because it finds the nearest neighbor and samples from it (1 texel read), there's no interpolation required. However, it does result in aliasing because the result tends to be blocky.</li>
+					<li><strong>Bilinear: </strong>This method is slower because it interpolates between the 4 closest neighbors to a given point. This means there are 4 texel reads and three linear interpolations (2 horizontal and 1 vertical). However, there's less aliasing because the result has a smoother blend.</li>
+				</ul>
+			<li><strong>Level Sampling: </strong> Using mipmaps can be faster because rendering higher levels (with lower resolution) when needed allows us to avoid rendering high resolution textures when unnecessary. However, we do need to store multiple textures in our MipMap array, which may consume additional memory. In general, level sampling reduces aliasing as it samples levels based on the maximum transformation (horizontal or vertical) for a given point. One case in level sampling stands out:</li>
+				<ul><li><strong>Trilinear resampling:</strong> This is the interpolation between mipmap levels; the results of bilinear resampling on both levels (8 texel reads, 6 linear interpolations) are then interpolated, for a total of 8 texel reads and 7 linear interpolations. This is a costly method, however it generally minimizes aliasing.</li></ul>
+			<li><strong>Samples per Pixel:</strong> Sampling at higher rates per pixel requires storing more data in the sample buffer which is a higher memory cost (both to read texels and write data). However, this minimizes aliasing as the images generally appear smoother. Alternatively, lower sampling rates are more memory efficient and faster, but aliasing is much more common as the lines will be more jagged due to less precision. </li>
 		</ul>
+		<strong> Comparison of texture sampling on Yayoi Kusama's Infinity Room</strong>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/lvl0-nearest.png" width="400px"/>
+				  <figcaption>(fig. 1) Level 0 Sample, Nearest Neighbor Sampling</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/lvl0-bilinear.png" width="400px"/>
+					<figcaption>(fig. 2) Level 0 Sample, Bilinear Sampling</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+					<img src="images/nearest-nearest.png" width="400px"/>
+					<figcaption>(fig. 3) Nearest MipMap Level, Nearest Neighbor Sampling,</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/nearest-bilinear.png" width="400px"/>
+				  <figcaption>(fig. 4) Nearest MipMap Level, Bilinear Sampling</figcaption>
+				</td>
+			  </tr>
+			</table>
+			<p> I thought this image would be interesting to show as it has a lot of contrast and detail, which is typically challenging for sampling methods. From the images you'll notice that the nearest level sampling offers more blending which minimizes contrast at some parts of the image. Though this minimizes some of the detail in the images, it also helps blend in stretched areas into the rest of the image. The level 0 samples preserve the most detail in the image, which is to be expected as level 0 will be the highest resolution. In both cases of level sampling, contrast is maintained better in the bilinear sampling than in nearest neighbor pixel sampling, which helps to preserve some details.</p>
+		</div>
 		</div>
 	</body>
 </html>
