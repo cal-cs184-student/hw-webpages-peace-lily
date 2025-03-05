@@ -334,22 +334,22 @@
 			<figcaption>cube.dae after 5 upsamplings</figcaption>
 		</div>
 	</div>
-    <p> One interesting observation is that repeated subdivisions tend to round out sharp edges and corners. This makes sense since the subdivision process moves vertices closer to a weighted average of their neighbors. As a result, meshes with sharp edges (like a cube) start to lose their structure and become more spherical over multiple iterations. We found that pre-flipping certain edges before applying loop subdivision led to a more symmetric subdivision. This is likely because the initial cube had relatively few vertices, so making early adjustments had a significant impact on the final result. 
+    <p> One interesting observation is that repeated subdivisions tend to round out sharp edges and corners. This makes sense since the subdivision process moves vertices closer to a weighted average of their neighbors. As a result, meshes with sharp edges (like a cube) start to lose their structure and become more spherical over multiple iterations. We found that pre-splitting certain edges before applying loop subdivision led to a more symmetric subdivision. This is likely because the initial cube had relatively few vertices, so making early adjustments had a significant impact on the final result. 
 
 	</p> 
 	<div style="display: flex; flex-wrap: wrap; justify-content: center;"> 
 		<div style="text-align: center; margin: 10px;"> 
 			<img src="images/preflip0.png" width="300px"/> 
-			<figcaption>cube.dae with pre-flipping</figcaption> 
+			<figcaption>cube.dae with pre-splitting</figcaption> 
 		</div> <div style="text-align: center; margin: 10px;">
 			 <img src="images/preflip1.png" width="300px"/> 
-			 <figcaption>cube.dae pre-flipped and upsampled once</figcaption>
+			 <figcaption>cube.dae pre-split and upsampled once</figcaption>
 			 </div> <div style="text-align: center; margin: 10px;"> 
 				<img src="images/preflip2.png" width="300px"/> 
-				<figcaption>cube.dae pre-flipped and upsampled twice</figcaption> </div> 
+				<figcaption>cube.dae pre-split and upsampled twice</figcaption> </div> 
 				<div style="text-align: center; margin: 10px;">
 					 <img src="images/preflip3.png" width="300px"/>
-					  <figcaption>cube.dae pre-flipped and upsampled thrice!</figcaption> </div> </div>
+					  <figcaption>cube.dae pre-split and upsampled thrice!</figcaption> </div> </div>
 
     <p>
         In the end, this part was difficult, but breaking it down step by step and making sure to be extra careful with pointers helped a lot. While debugging was tedious, it was satisfying to finally see the upsampled meshes looking correct.
