@@ -43,8 +43,9 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
+		<p>Geometry is an intrinsic part of the natural world, and in this project we focused on representing curvature in both 2-dimensional and 3-dimensional objects. We began by representing bezier curves (2-dimensional) and bezier surfaces (a three dimensional surface that builds on the algorithm for bezier curves). To represent the visual details of geometry, we want to include shading for our shapes, so we implemented area-weighted vertex normals for Phong shading, which is smoother than flat shading. </p>
+		<p>For a given mesh, there may be instances where we want to make it more detailed, which can be done by upsampling the mesh and dividing each triangle in the mesh into smaller triangles. The adjusted and new vertices for these triangles can be calculated based on the old vertices, and the mesh is mutated using an edge flipping and splitting procedure that we implemented in parts 4 and 5. Upsampling allows us to estimate additional detail for our mesh based on the data we are provided, letting us render more detail from potentially limited data.</p>
+		<p>Throughout this project, we found it interesting how much we can use geometry to estimate parts of our image (i.e. approximating shading and upsampling the mesh) to create a more detailed and smoother image. We imagine that this process of estimation/interpolation saves a lot of time when creating data for images to render. In the context of video games, meshes seem optimized to balance the load between providing data for an image and rendering an image smoothly, which places fewer constraints on designers as they create character designs.</p>
 		<h2>Section I: Bezier Curves and Surfaces</h2>
 
 		<h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
@@ -119,7 +120,7 @@
 		<h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
 		<h3>Part 3: Area-weighted vertex normals</h3>
-		In order to implement shading, we need to find area-weighted normal vectors for all vertices. I implement the following algorithm in order to accomplish this:
+		In order to implement smoother shading, we need to find area-weighted normal vectors for all vertices. I implement the following algorithm in order to accomplish this:
 		
 		For any given vertex, I iterate through the faces incident to the vertex by iterating through the half edges rooted at the vertex. I then access the vertices of the incident face, and use this to calculate the edges of the face. I use these edges to calculate the normal of the triangle, and weight the normal by the triangles' area. All of these weighted normals are summed together, and normalized by unit() which ensures the output is a normal vector.
 		
