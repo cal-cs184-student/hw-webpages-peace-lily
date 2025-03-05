@@ -111,7 +111,7 @@
 				I'm a little teapot short and stout <br>
 				Here is my handle <br>
 				Here is my spout <br>
-				(visualized with Bezier surfaces!)
+				(brought to you by Bezier surfaces!)
 			</figcaption>
 			
 		</figure>
@@ -119,8 +119,24 @@
 		<h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
 		<h3>Part 3: Area-weighted vertex normals</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+		In order to implement shading, we need to find area-weighted normal vectors for all vertices. I implement the following algorithm in order to accomplish this:
+		
+		For any given vertex, I iterate through the faces incident to the vertex by iterating through the half edges rooted at the vertex. I then access the vertices of the incident face, and use this to calculate the edges of the face. I use these edges to calculate the normal of the triangle, and weight the normal by the triangles' area. All of these weighted normals are summed together, and normalized by unit() which ensures the output is a normal vector.
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+					<img src="./images/flatShading.png" width="400px"/>
+					<figcaption>Flat shading (one normal vector).</figcaption>
+				  </td>
+				<td style="text-align: center;">
+				  <img src="./images/phongShading.png" width="400px"/>
+				  <figcaption>Phong shading (interpolating vertex normals of incident faces to our vertex).</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 		<h3>Part 4: Edge flip</h3>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
