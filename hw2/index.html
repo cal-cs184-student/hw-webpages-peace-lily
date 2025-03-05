@@ -139,27 +139,222 @@
 			</table>
 		</div>
 		<h3>Part 4: Edge flip</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			Since the project uses a half-edge data structure, performing an edge flip required carefully 
+			updating half-edges, vertices, edges, and faces while maintaining correct connectivity. I first 
+			checked if the edge was flippable--if it was on a boundary, I returned immediately since boundary 
+			edges shouldn’t be flipped. After confirming the edge could be flipped, I identified all affected 
+			elements: two adjacent faces (f0 and f1), ten half-edges (h0 to h9), four vertices 
+			(v0, v1, v2, v3), and four edges (e0, e1, e2, e3). The goal was to update the edge so that 
+			instead of connecting (v0, v1), it would now connect (v2, v3).
+		</p>
+	
+		<p>
+			I then reassigned half-edge connections to perform the flip. The connectivity of half-edges, 
+			their twins, next pointers, and faces were updated accordingly using 
+			<code>Halfedge::setNeighbors(next, twin, vertex, edge, face)</code>. I made sure that every 
+			half-edge had the correct next and twin pointers to maintain valid traversal across the mesh. 
+			
+		</p>
+	
+		<p>
+			Before writing any code, I sketched out diagrams to visualize how the half-edge pointers 
+			needed to be reassigned. This made it much easier to avoid mistakes when implementing the flip. 
+			I also closely followed the spec’s advice on updating all pointers of all elements in the modified 
+			mesh, not just the ones that changed directly. That likely saved me a lot of debugging time
+			 because everything worked as expected on the first try.
+		</p>
 
+
+
+		<div  style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+					<img src="images/teapotFlip2.png" width="400px"/>
+					<figcaption>teapot.dae before performing flips</figcaption>
+				  </td>
+				<td style="text-align: center;">
+				  <img src="images/teapotFlip1.png" width="400px"/>
+				  <figcaption>teapot.dae after performing some flips! </figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+	
+		<p>
+			The results show that the edge flip operation works correctly, with edges updating their 
+			connectivity as expected. Since I followed the spec meticulously and drew out everything 
+			carefully, the implementation process went smoothly without requiring much debugging.
+		</p>
+		
 		<h3>Part 5: Edge split</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+		<p>
+			For the edge split operation, I followed a similar approach to my edge flip implementation, 
+			starting by sketching diagrams of a simple mesh example to visualize how each element would be 
+			updated. The process involved identifying all the existing elements (faces, edges, half-edges, 
+			and vertices) and then carefully inserting new ones. I first created the necessary new elements: 
+			one new vertex, three new edges, six new half-edges, and two new faces. After that, I assigned 
+			half-edge neighbor relationships and updated all relevant pointers to maintain proper connectivity.
+		</p>
+	
+		<p>
+			Implementing this took a while because I initially ran into segmentation faults. 
+			The issue was likely due to minor errors in setting neighbor relationships incorrectly, 
+			which caused the mesh traversal to break. Debugging this was a bit of a struggle, and 
+			I ended up having to revisit this part later because it was causing issues in Part 6. 
+			It seemed like the inconsistencies between how I structured my elements in Part 4 and this part 
+			were leading to unintended behavior when both operations were used together.
+		</p>
+	
+		<p>
+			Eventually, I came back and fixed the issue by making sure my edge split logic matched 
+			the assumptions made in Part 4. Later, I also updated the implementation to properly 
+			set <code>isNew</code> values--marking edges that were created from splitting the original 
+			edge as <code>true</code> while marking the newly inserted edges as <code>false</code>. 
+			This was important for Part 6 since it relies on knowing which edges existed in the original mesh.
+		</p>
+	
+		<p>
+			Debugging this mainly involved carefully reading through my code and comparing it to my 
+			initial diagrams to catch any inconsistencies. Similar to Part 4, I made debugging easier
+			 by ensuring all relevant pointers were explicitly set, even if some were redundant. 
+			 That way, I had more control over how everything was being updated, making it easier to 
+			 spot errors.
+		</p>
+	
+		<p>
+			Here are screenshots showing <code>bean.dae</code> before and after performing edge splits:
+		</p>
+	
+		<div  style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+					<img src="images/bean2.png" width="400px"/>
+					<figcaption>bean.dae before performing splits</figcaption>
+				  </td>
+				<td style="text-align: center;">
+				  <img src="images/bean1.png" width="400px"/>
+				  <figcaption>bean.dae after many performing a bunch of splits! </figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+	
+		<p>
+			Also, here are screenshots showing <code>cube.dae</code> before and after applying both edge splits and edge flips:
+		</p>
+	
+		<div  style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+					<img src="images/cube1.png" width="400px"/>
+					<figcaption>cube.dae before splits and flips</figcaption>
+				  </td>
+				<td style="text-align: center;">
+				  <img src="images/cube2.png" width="400px"/>
+				  <figcaption>cube.dae, with both splits and flips! </figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			After making sure everything was implemented correctly, edge splits and flips worked well together, 
+			and Part 6 no longer had unexpected behavior.
+		</p>
 		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 6 Write-Up</title>
+    <style>
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .image-container img {
+            width: 45%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <p>
+        Loop subdivision was by far the most time-consuming part of the assignment, taking over eight hours 
+		to fully implement. My partner and I worked on it together, pair programming to make sure we didn’t 
+		overlook any details. We followed the recommended approach outlined in the skeleton code comments, 
+		which helped break things down into manageable steps instead of trying to figure everything out at once.
+    </p>
 
-		<h2>(Optional) Section III: Potential Extra Credit - Art Competition: Model something Creative</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    <p>Here are brief summaries of how we approached each subpart:</p>
 
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
+    <ul>
+        <li>
+            6.1 - Compute new positions for old vertices: We originally iterated through faces and their vertices, but later realized we could just iterate through all vertices directly. Using the formula from the spec, we computed the new positions and stored them in <code>newPosition</code>. We also set <code>isNew = false</code> to mark these as original mesh vertices.
+        </li>
+        <li>
+            6.2 - Compute new positions for edges: We iterated through edges and identified the four relevant vertices (A, B, C, and D) using a simple mesh diagram to guide us. With those vertices, we applied the given formula to compute the <code>newPosition</code> for edges.
+        </li>
+        <li>
+            6.3 - Split edges: We iterated through edges again and checked the condition <code>!(e->isNew || e->halfedge()->vertex()->isNew || e->halfedge()->twin()->vertex()->isNew)</code> to ensure we didn’t process newly created edges. If an edge met the condition, we split it, set <code>isNew = true</code> for the newly created vertex, and set its position to the corresponding <code>newPosition</code> from the edge.
+        </li>
+        <li>
+            6.4 - Flip edges: We iterated through edges again and flipped those where only one of the adjacent vertices was new.
+        </li>
+        <li>
+           6.5 - Update final vertex positions: Lastly, we updated the positions of old vertices using the precomputed <code>newPosition</code> values.
+        </li>
+    </ul>
+
+    <p>
+        Debugging this part was frustrating because we weren’t sure if the issues were coming from this implementation or from Part 4 (flipEdge) or Part 5 (splitEdge). After completing the initial implementation, we ran into segmentation faults, which we eventually resolved by ensuring that edges created in Part 6 were correctly assigned <code>isNew</code> values. Even after that fix, the upsampled meshes still didn’t look quite right--some edges weren’t being flipped as expected. 
+    </p>
+
+    <p>
+        At first, we thought the issue was with how we were calculating positions, but after checking our math, nothing seemed wrong. Eventually, I took a closer look at Parts 4 and 5 and found that my <code>splitEdge</code> function had a subtle flaw. It worked fine on its own, but when used alongside <code>flipEdge</code>, inconsistencies in how elements were ordered caused unexpected behavior. Once we fixed that, the upsampling finally worked correctly.
+    </p>
+
+
+    <div style="display: flex; justify-content: center; gap: 20px; text-align: center;">
+		<div>
+			<img src="images/upsample1.png" width="300px"/>
+			<figcaption>cube.dae after 1 upsampling</figcaption>
+		</div>
+		<div>
+			<img src="images/upsample3.png" width="300px"/>
+			<figcaption>cube.dae after 3 upsamplings</figcaption>
+		</div>
+		<div>
+			<img src="images/upsample5.png" width="300px"/>
+			<figcaption>cube.dae after 5 upsamplings</figcaption>
+		</div>
+	</div>
+    <p> One interesting observation is that repeated subdivisions tend to round out sharp edges and corners. This makes sense since the subdivision process moves vertices closer to a weighted average of their neighbors. As a result, meshes with sharp edges (like a cube) start to lose their structure and become more spherical over multiple iterations. We found that pre-flipping certain edges before applying loop subdivision led to a more symmetric subdivision. This is likely because the initial cube had relatively few vertices, so making early adjustments had a significant impact on the final result. 
+
+	</p> 
+	<div style="display: flex; flex-wrap: wrap; justify-content: center;"> 
+		<div style="text-align: center; margin: 10px;"> 
+			<img src="images/preflip0.png" width="300px"/> 
+			<figcaption>cube.dae with pre-flipping</figcaption> 
+		</div> <div style="text-align: center; margin: 10px;">
+			 <img src="images/preflip1.png" width="300px"/> 
+			 <figcaption>cube.dae pre-flipped and upsampled once</figcaption>
+			 </div> <div style="text-align: center; margin: 10px;"> 
+				<img src="images/preflip2.png" width="300px"/> 
+				<figcaption>cube.dae pre-flipped and upsampled twice</figcaption> </div> 
+				<div style="text-align: center; margin: 10px;">
+					 <img src="images/preflip3.png" width="300px"/>
+					  <figcaption>cube.dae pre-flipped and upsampled thrice!</figcaption> </div> </div>
+
+    <p>
+        In the end, this part was difficult, but breaking it down step by step and making sure to be extra careful with pointers helped a lot. While debugging was tedious, it was satisfying to finally see the upsampled meshes looking correct.
+    </p>
+
 		</div>
 	</body>
 </html>
