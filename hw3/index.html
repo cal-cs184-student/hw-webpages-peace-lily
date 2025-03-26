@@ -28,7 +28,7 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2025 Homework 3 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Abby Brooks-Ramirez, Richard Villagomez</div>
 
 		<br>
 
@@ -85,7 +85,7 @@
 				  <tr>
 					<td>
 					  <img src="images/CBspheres.png" width="400px"/>
-					  <figcaption>CBspheres_lambertian.dae</figcaption>
+					  <figcaption>CBspheres.dae</figcaption>
 					</td>
 					<td>
 					  <img src="images/CBdragon.png" width="400px"/>
@@ -126,7 +126,57 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 3: Direct Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+<p>
+  This part was all about implementing direct lighting using two different sampling strategies: uniform hemisphere sampling and importance sampling. Both approaches try to estimate the light coming from area lights directly, but with different levels of noise and efficiency.
+</p>
+
+<p>
+  I first implemented <code>estimate_direct_lighting_hemisphere</code>, where I uniformly sampled directions over the hemisphere above the surface. For each sampled direction, I traced a shadow ray from the hit point and checked if it intersected any light-emitting objects. If it did, I applied the reflection equation using the BSDF’s <code>f()</code> function and the cosine between the sampled direction and the surface normal. This worked, but it's very noisy—even with a decently high number of samples—since most directions don't actually point toward light sources.
+</p>
+
+<p>
+  Then I implemented <code>estimate_direct_lighting_importance</code>. Instead of sampling random directions in the hemisphere, this one directly samples the lights in the scene. For each light, I generated rays toward sampled points on the light and checked if they were occluded. If not, I used the reflectance equation again, normalized by the PDF of the light sample. Point lights were only sampled once since they don’t have area. This method produces way cleaner results with fewer samples.
+</p>
+
+<p>
+  To test both, I rendered the same scene with hemisphere sampling and then with importance sampling at 1, 4, 16, and 64 light samples. For all of them, I kept the number of camera rays per pixel at 1 to highlight the difference in noise levels.
+</p>
+
+<div style="display: flex; flex-direction: column; align-items: center;">
+  <table style="width: 100%; text-align: center; border-collapse: collapse;">
+    <tr>
+      <td>
+        <img src="images/CBbunny_H_16_8.png" width="400px"/>
+        <figcaption>hemisphere sampling -- 16 light samples, 8 bounces</figcaption>
+      </td>
+      <td>
+        <img src="images/CBbunny_L_1.png" width="400px"/>
+        <figcaption>importance sampling -- 1 light sample, 1 pixel sample</figcaption>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <img src="images/CBbunny_L_4.png" width="400px"/>
+        <figcaption>importance sampling -- 4 light samples, 1 pixel sample</figcaption>
+      </td>
+      <td>
+        <img src="images/CBbunny_L_16.png" width="400px"/>
+        <figcaption>importance sampling -- 16 light samples, 1 pixel sample</figcaption>
+      </td>
+    </tr>
+    <tr>
+		<td colspan="2" style="text-align: center;">
+			<img src="images/CBbunny_L_64.png" width="400px"/>
+        <figcaption>importance sampling -- 64 light samples, 1 pixel sample</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p>
+  Overall, importance sampling was a big improvement. Even at 4 samples, the shadows were a lot cleaner than the hemisphere version with 16. At 64, it’s basically clean with soft shadows and much less noise. The hemisphere sampling "wastes" a lot of samples shooting rays into directions that never hit lights. Importance sampling is more focused and efficient, and makes a noticeable difference overall.
+</p>
+
 
 		<h2>Part 4: Global Illumination</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
