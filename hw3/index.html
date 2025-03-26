@@ -45,7 +45,9 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		<p>In this homework, we implemented ray tracing in order to render images with complex geometries. We began by implementing ray generation and interaction testing (i.e. testing whether a ray intersects with a triangle or a sphere). We then implemented Bounding Volume Hierarchy, to speed up intersection testing, rather than testing all primitives in the mesh, we're able to test large areas of the image to rule out areas that aren't hit. We then implemented direct lighting using uniform and hemisphere sampling to estimate the light coming from light sources within the image.</p>
+
+		<p>implementing the parts we worked on. This project truly gave us a new appreciation for optimization within graphics. In a similar vein, debugging for this project was fairly difficult because our code iterated hundreds of thousands of times and using the debugger to step through code was ineffective. Printing was marginally more useful and gave us an appreciation of just how many times our code iterated. Understanding the scale of our images gave us a new appreciation for optimization, which is a large and critical component of graphics.</p>
 		
 		<h2>Part 1: Ray Generation and Scene Intersection</h2>
 		<p>
@@ -62,7 +64,7 @@
 			</ul>
 			
 			<p>
-			I then implemented triangle intersection using the Möller–Trumbore algorithm from Lecture 9 in <code>Triangle::intersect</code>. After computing edge vectors and checking the determinant to avoid degenerate triangles, I solved for barycentric coordinates \((u, v)\) to confirm the intersection is inside the triangle. For valid hits, I used the barycentric weights to interpolate the normal from the triangle’s vertex normals and populated the <code>Intersection</code> struct.
+			I then implemented triangle intersection using the Moller-Trumbore algorithm from Lecture 9 in <code>Triangle::intersect</code>. After computing edge vectors and checking the determinant to avoid degenerate triangles, I solved for barycentric coordinates \((u, v)\) to confirm the intersection is inside the triangle. For valid hits, I used the barycentric weights to interpolate the normal from the triangle's vertex normals and populated the <code>Intersection</code> struct.
 			</p>
 			
 			<p>
@@ -99,7 +101,7 @@
 		<h2>Part 2: Bounding Volume Hierarchy</h2>
 			<p>We place our primitives in the BVH recursively. We begin by iterating through the primitives to create a bounding box, which we expand given the bounding box of the primitive. We also create an empty node, set the nodes bounding box to be the box we just calculated and setting the left and right pointers to be null (for not).</p>
 
-			<p>We reach the <b>base case</b> if our primitives are less than or equal to max_leaf_size, at which point we update the pointers and return our new node.</p>
+			<p>We reach the <b>base case</b> if our primitives are less than or equal to <code>max_leaf_size</code>, at which point we update the pointers and return our new node.</p>
 			
 			<p>Otherwise, we reach the <b>recursive case </b> and must split our primitives into left and right subgroups to recurse on. We split groups along whichever axis is the longest (i.e. has the biggest difference between max and min points). Initially, we stored the new left and right primitives in new vectors, which we stored on the heap. However, after office hours we were told that a simpler and more accurate method would be to sort the list in place and split it in half (along the longest axis) so we do this instead. Thus our heuristic is to sort the primitives by their centroid longest-axis value, and then split our sorted list in half, so our heuristic effectively becomes the mean centroid of the primitives along the longest axis. We then update the left and right pointers of our node and return them.</p>
 			<div style="display: flex; flex-direction: column; align-items: center;">
@@ -127,7 +129,7 @@
 				</table>
 			</div>
 
-			<p> In the above table, we tested a variety of .dae files, from those with less complex meshes (such as the cow) to those with hundreds of thousands of triangles in their meshes. From the table, it’s clear that using BVH optimizes the rendering time. BVH allows us to broadly check large parts of the mesh to determine whether or not an intersection exists within a certain area if an intersection does not exist, we can skip all the primitives in that bounding box, allowing us to speed up our rendering. It seems that images with more concentrated meshes and detail (especially regarding lighting) in certain areas take longer to render without BVH (i.e. BClucy and dragon takes longer to render than maxplanck and cow). BVH speedup is most significant for the images with more complex geometry (CBlucy and dragon).</p>
+			<p> In the above table, we tested a variety of .dae files, from those with less complex meshes (such as the cow) to those with hundreds of thousands of triangles in their meshes. From the table, it's clear that using BVH optimizes the rendering time. BVH allows us to broadly check large parts of the mesh to determine whether or not an intersection exists within a certain area if an intersection does not exist, we can skip all the primitives in that bounding box, allowing us to speed up our rendering. It seems that images with more concentrated meshes and detail (especially regarding lighting) in certain areas take longer to render without BVH (i.e. BClucy and dragon takes longer to render than maxplanck and cow). BVH speedup is most significant for the images with more complex geometry (CBlucy and dragon).</p>
 		
 			<h2>Part 3: Direct Illumination</h2>
 <p>
@@ -135,11 +137,11 @@
 </p>
 
 <p>
-  I first implemented <code>estimate_direct_lighting_hemisphere</code>, where I uniformly sampled directions over the hemisphere above the surface. For each sampled direction, I traced a shadow ray from the hit point and checked if it intersected any light-emitting objects. If it did, I applied the reflection equation using the BSDF’s <code>f()</code> function and the cosine between the sampled direction and the surface normal. This worked, but it's very noisy—even with a decently high number of samples—since most directions don't actually point toward light sources.
+  I first implemented <code>estimate_direct_lighting_hemisphere</code>, where I uniformly sampled directions over the hemisphere above the surface. For each sampled direction, I traced a shadow ray from the hit point and checked if it intersected any light-emitting objects. If it did, I applied the reflection equation using the BSDF's <code>f()</code> function and the cosine between the sampled direction and the surface normal. This worked, but it's very noisy—even with a decently high number of samples—since most directions don't actually point toward light sources.
 </p>
 
 <p>
-  Then I implemented <code>estimate_direct_lighting_importance</code>. Instead of sampling random directions in the hemisphere, this one directly samples the lights in the scene. For each light, I generated rays toward sampled points on the light and checked if they were occluded. If not, I used the reflectance equation again, normalized by the PDF of the light sample. Point lights were only sampled once since they don’t have area. This method produces way cleaner results with fewer samples.
+  Then I implemented <code>estimate_direct_lighting_importance</code>. Instead of sampling random directions in the hemisphere, this one directly samples the lights in the scene. For each light, I generated rays toward sampled points on the light and checked if they were occluded. If not, I used the reflectance equation again, normalized by the PDF of the light sample. Point lights were only sampled once since they don't have area. This method produces way cleaner results with fewer samples.
 </p>
 
 <p>
@@ -178,11 +180,11 @@
 </div>
 
 <p>
-  Overall, importance sampling was a big improvement. Even at 4 samples, the shadows were a lot cleaner than the hemisphere version with 16. At 64, it’s basically clean with soft shadows and much less noise. The hemisphere sampling "wastes" a lot of samples shooting rays into directions that never hit lights. Importance sampling is more focused and efficient, and makes a noticeable difference overall.
+  Overall, importance sampling was a big improvement. Even at 4 samples, the shadows were a lot cleaner than the hemisphere version with 16. At 64, it's basically clean with soft shadows and much less noise. The hemisphere sampling "wastes" a lot of samples shooting rays into directions that never hit lights. Importance sampling is more focused and efficient, and makes a noticeable difference overall.
 </p>
 
 
-		<h2>Part 4: Global Illumination</h2>
+		<!-- <h2>Part 4: Global Illumination</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 5: Adaptive Sampling</h2>
@@ -200,7 +202,7 @@
 					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
 				</ul>
 			</li>
-		</ul>
+		</ul> -->
 		</div>
 	</body>
 </html>
