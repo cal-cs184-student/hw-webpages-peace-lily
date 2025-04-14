@@ -28,7 +28,7 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2025 Homework 4 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Abigail Brooks-Ramirez </div>
 
 		<br>
 
@@ -38,10 +38,10 @@
 
 		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
 
-		<figure>
+		<!-- <figure>
 			<img src="clothsim.png" alt="Cloth draped over sphere" style="width:70%"/>
 			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+		</figure> -->
 
 		<!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
@@ -51,43 +51,90 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Part 1: Masses and springs</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="./images/full.png" width="400px"/>
+				  <figcaption>A cloth with all constraints.</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/close.png" width="400px"/>
+				  <figcaption>A close up image of masses and springs, with all constraints.</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/noStructural.png" width="400px"/>
+				  <figcaption>A cloth without shearing constraints.</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/shearing.png" width="400px"/>
+				  <figcaption>A cloth with only shearing constraints.</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
 
 		<h2>Part 2: Simulation via numerical integration</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 3: Handling collisions with other objects</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
+		<b> Sphere </b>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="./images/sphere-50.png" width="400px"/>
+				  <figcaption>ks = 50.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/sphere-500.png" width="400px"/>
+				  <figcaption>ks = 500.</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/sphere-5000.png" width="400px"/>
+				  <figcaption>ks=5,000 (default).</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/sphere-50000.png" width="400px"/>
+				  <figcaption>ks = 50,000.</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			The sphere is defined by the sphere's origin and it's radius. To measure weather the cloth collided with the sphere, I measured the distance between the point mass's <code>position</code> and the origin of the sphere, using euclidian norm: <code>(position - origin).norm()</code>. If the distance is less than the radius of the sphere, the point mass in the cloth must have intersected the sphere, and I adjust the <code>position</code> of the point mass to reflect the intersection by adding an offset/correction to the point mass's <code>position</code> at the last timestep (<code>last_position</code>). In order to adjust the position, I apply a correction <code>Vector3D</code>, which is the tangent point (where the pointmass intersects the sphere) subtracted from the point mass's last position. The correction factor is then multiplied by <code>(1 - friction)</code> and added to the point masses last point.
+			</p>
+			
+			<p>
+			The spring constant, <code>ks</code>, determines the flexibility of the springs. This is very prominent across different <code>ks</code> values. For instance, <code>ks = 50,000</code> results in a very stiff cloth, because the higher <code>ks</code> value indicates that the springs are less elastic and therefore more resistant to force (in this case, the main force is gravity) which causes the cloth to lie quite stifly. Lower <code>ks</code> values result in more flexibility of the cloth, for instance <code>ks = 500</code> shows a very flexible cloth that outlines the sphere quite well. I experimented with <code>ks = 50</code> and noticed that the springs because so elastic that the cloth began to lack shape, and the folds became harder to distinguish.
+			</p>
+		
+		<b> Plane </b>
+			<figure>
+				<img src="./images/plane.png" alt="Cloth draped over plane" style="width:70%"/>
+				<figcaption>A green cloth drapped over the plane.</figcaption>
+			</figure>
+			<p>
+				The plane is defined by a point on the plane (<code>p'</code>) and a normal vector (<code>N</code>). I reviewed the ray tracing lecture (Lecture 9) to decide how to test intersection. I ultimately used the ray intersection with plane equation from Lecture 9. In lecture, the ray is defined as <code>origin + time_step * direction</code>, and in the case of the point mass, I can determine the origin from <code>last_position</code> and the direction is equal to <code>position - last_position</code>. To determine the location of the intersection, I assign <code>t</code> to <code>t = dot((p' - last_position), N) / dot(direction, N)</code>. <code>t</code> tells me how far along the direction vector the point occurs, if <code>t</code> is between <code>[0, 1]</code> then the collision occurs between <code>last_position</code> and the current <code>position</code>. I then calculate the exact intersection point (the tangent point) as <code>last_position + t * direction</code>. I then apply a correction to <code>last_position</code> and scale the correction by <code>(1 - friction)</code>. This correction places the new <code>position</code> at slightly above the tangent point.
+			</p>
+				
 		<h2>Part 4: Handling self-collisions</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+		<p>
+			In order to implement self-collisions within the cloth, I subdivided our 3D space into 3D boxes. The point masses that lie within the same box are likely to collide with each other, so comparing a given point to its neighbors (other point masses within the same box) is much faster than comparing it to every other point mass in the cloth. In order to store the neighbors (essentially all the point masses that share the same 3D box) I created a hash table, where the key is symbolic of which 3D box the points lie in, and the value is a vector of <code>PointMass</code> objects.
+			</p>
+			
+			<p>
+			I had a challenging time determining how to create an accurate hash function, however I read on Ed that converting the 3D coordinates to a 1D coordinate index system was useful. Based on this, I divided each position coordinate (<code>x</code>, <code>y</code>, <code>z</code>) by the side of the box (given by <code>w</code>, <code>h</code>, <code>t</code> respectively) and then used <code>floor()</code> to round the results. This allowed me to determine the <code>x</code>, <code>y</code>, <code>z</code> values of which box the point was in. I then used the following equation (which I derived on my own but confirmed through a <a href="https://stackoverflow.com/questions/7367770/how-to-flatten-or-index-3d-array-in-1d-array"> Stack Overflow </a> post) to find my hash value: <code>key = z_idx * num_width_points * num_height_points + y_idx * num_width_points + x_idx</code>.
+			</p>
+			
+			<p>
+			After the point masses for the cloth have been placed in the hash table (in <code>build_spatial_map</code>) I implemented <code>self_collide</code>. This compares a given point mass to all of its neighbors (which is found in the hash table) and measures if the distance between the point mass and its neighbor is less than or equal to <code>2 * thickness</code>. If the distance is less than this metric, the two points must have collided. In this case, to prevent the cloth from "falling through" itself, I calculate a correction factor for each intersection, which is <code>-(2 * thickness - the distance between the two points)</code>. This allows the fabric to lay on top of itself rather than falling through. I scale this correction factor by the unit vector of the distance between the two points, in order to ensure the correction factor is a <code>Vector3D</code> object. The final correction for the point mass is the average correction vector across its neighbors, divided by the number of simulation steps.
+			</p>
+			
 		<h2>Part 5: Shaders</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
