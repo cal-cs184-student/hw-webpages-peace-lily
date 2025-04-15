@@ -308,7 +308,58 @@
 		<p>At a low ks value there is more movement in the cloth, making the cloth fold in on itself more in the final stages. Note that at timestep 100, the cloth is flatter than it is at the same timestep for the default ks value.</p>
 
 		<h2>Part 5: Shaders</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>Shaders occur in our rasterization pipeline and can operate on vectexes (vertex shaders) or on entire fragments (fragment shaders). Shaders work like a program: they can have functions, they take in arguments, they have shared attributes across instances of the running program (called a uniform) which may be objects like light position. Per-vertex operations occur before per-fragment operations in the rasterization pipeline, so vertex shaders may write in values (called varying) into the fragment shader; shaders often operate on both vertices and fragments. Vertex shaders often modify geometric properties (like position) whereas fragment shaders modify attributes like color (based off of the values passed to it by the vertex shader). </p>
+		
+		
+		<p><b> Blinn-Phong Shading</b></p>
+
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/5-blinn/a.png" width="400px"/>
+					<figcaption>Ambiance only.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/5-blinn/d.png" width="400px"/>
+					<figcaption>Diffuse only.</figcaption>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/5-blinn/s.png" width="400px"/>
+					<figcaption>Specular only.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/5-blinn/all.png" width="400px"/>
+					<figcaption>Blinn-Phong (ambiance + diffuse + specular)./</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p>
+			Blinn-Phong shading utilizes three aspects of shading to create a more accurate, smooth shading result.
+		</p>
+		
+		<p>
+			Ambient shading is shading that does not depend on anything, it is a constant color that is added to the entire cloth/texture. I selected a black background color because the reference photo seemed to have a lot of shadows. It is calculated as \( k_a \cdot I_a \)
+		</p>
+		
+		<p>
+			Diffuse shading is calculated independent of view direction but still incorporates the light source and vertex normal. Diffuse shading uses a diffuse coefficient \( k_d \), considers the illumination at the time of intersection \( \frac{I}{r^2} \), and ensures that the vertex normal is non negative. It is calculated as \( k_d \cdot \frac{I}{r^2} \cdot \max(0.0, \text{dot}(n, l)) \)
+		</p>
+		
+		<p>
+			Specular shading models bright points in the image, namely points of reflection. I utilized a high value for \( p \) and a low value for \( k_s \) based on the lecture slides. It is calculated as \( k_s \cdot \frac{I}{r^2} \cdot \max(0.0, \text{dot}(n, h))^p \)
+		</p>
+		  
+		<p><b>Texture Mapping</b></p>
+		<figure>
+			<img src="./images/shroom2.png" alt="mushrooms" style="width:70%"/>
+			<figcaption>Cloth prior to draping with texture maping. Art by Yayoi Kusama.</figcaption>
+		</figure>
+		<figure>
+			<img src="./images/shroom1.png" alt="mushrooms" style="width:70%"/>
+			<figcaption>Cloth in resting state. Art by Yayoi Kusama.</figcaption>
+		</figure>
 
 		<!-- <h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
