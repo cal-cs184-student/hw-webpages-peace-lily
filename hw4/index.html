@@ -134,11 +134,137 @@
 			<p>
 			After the point masses for the cloth have been placed in the hash table (in <code>build_spatial_map</code>) I implemented <code>self_collide</code>. This compares a given point mass to all of its neighbors (which is found in the hash table) and measures if the distance between the point mass and its neighbor is less than or equal to <code>2 * thickness</code>. If the distance is less than this metric, the two points must have collided. In this case, to prevent the cloth from "falling through" itself, I calculate a correction factor for each intersection, which is <code>-(2 * thickness - the distance between the two points)</code>. This allows the fabric to lay on top of itself rather than falling through. I scale this correction factor by the unit vector of the distance between the two points, in order to ensure the correction factor is a <code>Vector3D</code> object. The final correction for the point mass is the average correction vector across its neighbors, divided by the number of simulation steps.
 			</p>
-			
+		<p><b> Table 1:</b> Default ks and density value at different time steps</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-default/ts10.png" width="400px"/>
+					<figcaption>ks = 5000, density = 15 (defaults). timestep = 10.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-default/ts30.png" width="400px"/>
+					<figcaption>ks = 5000, density = 15 (defaults). timestep = 30.</figcaption>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-default/ts60.png" width="400px"/>
+					<figcaption>ks = 5000, density = 15 (defaults). timestep = 60.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-default/ts110.png" width="400px"/>
+					<figcaption>ks = 5000, density = 15 (defaults). timestep = 110.</figcaption>
+				</td>
+			</tr>
+		</table>
+
+		<p><b> Table 2: </b>Default ks and high density value at different time steps</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-high-d/ts10.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1,000. timestep = 10.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-high-d/ts30.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1,000. timestep = 30.</figcaption>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-high-d/ts60.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1,000. timestep = 60.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-default/ts110.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1,000. timestep = 110.</figcaption>
+				</td>
+			</tr>
+		</table>
+
+		<p>High density has a very noticable effect on the cloth. From timestep 10, it's immediately aparent that the high density weighs the bottom of the cloth such that most of the visible movement occurs at the bottom of the cloth. Unlike the default values, there are minimal ripples throughout the cloth and the ripples that do occur are at the bottom. The cloth also falls in on itself in a more dramatic manner, with harsher transitions and more wrinkles.</p>
+
+		<p><b> Table 3: </b>Default ks and low density value at different time steps</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-low-d/ts10.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1. timestep = 10.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-low-d/ts30.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1. timestep = 30.</figcaption>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-low-d/ts60.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1. timestep = 60.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-low-d/ts110.png" width="400px"/>
+					<figcaption>ks = 5000, density = 1. timestep = 110.</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p>The main difference at lower density is that the ripples in the cloth are larger and less dramatic. In Table 3, there are fewer but larger ripples as the ripples that do exist extend to the rest of the cloth.</p>
+
+		<p><b> Table 4: </b> High ks and default density value at different time steps</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-high-ks/ts10.png" width="400px"/>
+					<figcaption>ks = 50000, density = 15. timestep = 10.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-high-ks/ts30.png" width="400px"/>
+					<figcaption>ks = 50000, density = 15. timestep = 30.</figcaption>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-high-ks/ts60.png" width="400px"/>
+					<figcaption>ks = 50000, density = 15. timestep = 60.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-high-ks/ts110.png" width="400px"/>
+					<figcaption>ks = 50000, density = 15. timestep = 110.</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p>At a high ks value, there is less movement in the cloth, which makes sense as ks is correlated to the flexibility of the springs. This is most prominent in the final frame: the cloth has spread across the plane less than it did at the default ks, and the folds that do exist appear stiff.
+
+		</p>
+
+		<p><b> Table 5: </b> Low ks and default density value at different time steps</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-low-ks/ts10.png" width="400px"/>
+					<figcaption>ks = 500, density = 15. timestep = 10.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-high-ks/ts30.png" width="400px"/>
+					<figcaption>ks = 500, density = 15. timestep = 30.</figcaption>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					<img src="images/4-low-ks/ts60.png" width="400px"/>
+					<figcaption>ks = 500, density = 15. timestep = 60.</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="images/4-low-ks/ts110.png" width="400px"/>
+					<figcaption>ks = 500, density = 15. timestep = 110.</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p>At a low ks value there is more movement in the cloth, making the cloth fold in on itself more in the final stages. Note that at timestep 100, the cloth is flatter than it is at the same timestep for the default ks value.</p>
+
 		<h2>Part 5: Shaders</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-		<h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
+		<!-- <h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 		
 		<h2>Additional Notes (please remove)</h2>
@@ -150,7 +276,7 @@
 					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
 				</ul>
 			</li>
-		</ul>
+		</ul> -->
 		</div>
 	</body>
 </html>
