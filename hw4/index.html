@@ -48,8 +48,9 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
+		<p>This homework focused on creating realistic cloth and surface modeling. I began by implementing the grid of masses and springs, which allowed me to represent a cloth as a grid of point masses, and I was able to connect these masses together using springs. There are different types of springs that connect different pairs of point masses throughout the cloth, which represent how points in the cloth affect other points during movement. I then implemented simulating movement in the cloth by calculating the force exerted on each point, calculating the points new position, and constraining the point movement based on the spring type. I then dealt with collisions, both between the cloth and other objects using ray-intersection formulas, as well as between the cloth with itself. The final step was implementing different shading techniques.</p>
+		<p>Ultimately, I enjoyed this project a lot because it was visually appealing and my interest in the aesthetic aspect of graphics is part of the reason I took CS184. The write up portion of the homework encouraged me to examine the impacts of different features (dampening, density, and ks) to view the effect on the cloth. I thought this was especially interesting because it made me think about how different materials would react differently in different scenes, and how the cloth simulation is just one part of an overall scene. For instance, if the cloth were wet (or even submerged in water) modifying the dampening, density, and ks could replicate this effect. I thought the optimization aspect of this homework (i.e. the hash table of self collisions) was also interesting and it gave me an appreciation for the ways programers work to optimize the overall program.</p>
+		
 		<h2>Part 1: Masses and springs</h2>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
