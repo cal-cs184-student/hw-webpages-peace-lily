@@ -95,6 +95,34 @@
 		</table>
 		<p>Lower ks values (i.e. 50) result in the springs having more flexibility. Thus the cloth on the left has springs that are much more flexible (and therefore more resistant to force). The left cloth continued to move even in it's "rest" state. Alternatively, the right cloth was much more stiff and its springs were more resistant to force. Thus the cloth has less movement in the fabric.</p>
 
+		<table>
+			<tr>
+				<td style="text-align: center;">
+					<img src="./images/2-low-d.png" width="400px"/>
+					<figcaption>Low density (density = 1).</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="./images/2-high-d.png" width="400px"/>
+					<figcaption>High density (density = 1,000).</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p>High density values result in similar renders to low ks values. While low ks values make the springs more suseptible to force high density values will increase the mass of each point, making any force on the cloth more pronounced, which leads to greater movement/wrinkles in the cloth. Alternatively, lower density means a smaller value for mass/volume, so any force will be multiplied by a smaller coefficent and will be less pronounced.</p>
+
+		<table>
+			<tr>
+				<td style="text-align: center;">
+					<img src="./images/2-low-damp.png" width="400px"/>
+					<figcaption>Low dampening (dampening = 0.01).</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="./images/2-high-damp.png" width="400px"/>
+					<figcaption>High dampening (dampening = 0.90).</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p> A high dampening factor means there is more resistance to the cloth, so the cloth settles slowly but ultimately reaches it's rest state relatively fast. The cloth is much more stiff as it falls. Alternatively, a low dampening value results in much more movement. The cloth faces less resistance and moves a lot, wiggling around before eventually coming to a halt. However, it takes a long time to reach the rest state due to so much movement.</p>
+
 		<h2>Part 3: Handling collisions with other objects</h2>
 
 		<b> Sphere </b>
