@@ -32,11 +32,11 @@
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-peace-lily/hw4/index.html">cal-cs184-student.github.io/hw-webpages-peace-lily/hw4/index.html</a>
 
 		<br>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/sp25-hw4-string-of-pearls">github.com/cal-cs184-student/sp25-hw4-string-of-pearls</a>
 
 		<!-- <figure>
 			<img src="clothsim.png" alt="Cloth draped over sphere" style="width:70%"/>
@@ -77,6 +77,23 @@
 		</div>
 
 		<h2>Part 2: Simulation via numerical integration</h2>
+		<figure>
+			<img src="./images/2-final.png" alt="Cloth draped" style="width:70%"/>
+			<figcaption>scene/pinned4.json in it's final resting state</figcaption>
+		</figure>
+		<table>
+			<tr>
+				<td style="text-align: center;">
+					<img src="./images/2-low-ks.png" width="400px"/>
+					<figcaption>Low ks (ks = 50).</figcaption>
+				</td>
+				<td style="text-align: center;">
+					<img src="./images/2-high-ks.png" width="400px"/>
+					<figcaption>High ks (ks = 50,000).</figcaption>
+				</td>
+			</tr>
+		</table>
+		<p>Lower ks values (i.e. 50) result in the springs having more flexibility. Thus the cloth on the left has springs that are much more flexible (and therefore more resistant to force). The left cloth continued to move even in it's "rest" state. Alternatively, the right cloth was much more stiff and its springs were more resistant to force. Thus the cloth has less movement in the fabric.</p>
 
 		<h2>Part 3: Handling collisions with other objects</h2>
 
